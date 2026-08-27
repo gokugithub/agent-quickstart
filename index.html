@@ -17,6 +17,18 @@
       --shadow: 0 18px 55px rgba(30, 45, 80, 0.1);
     }
 
+    :root[data-theme="dark"] {
+      --ink: #e5e9f0;
+      --muted: #a0a8b8;
+      --line: #2a3647;
+      --surface: #1a2332;
+      --background: #0f1419;
+      --accent: #7b7dff;
+      --accent-dark: #6364d4;
+      --danger: #ff5a7a;
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.3);
+    }
+
     * { box-sizing: border-box; }
 
     body {
@@ -35,7 +47,14 @@
       padding: 4.5rem 0 3rem;
     }
 
-    .header { margin-bottom: 1.75rem; }
+    .header { 
+      margin-bottom: 1.75rem; 
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .header-content { flex: 1; }
     .eyebrow {
       margin: 0 0 .5rem;
       color: var(--accent);
@@ -89,6 +108,29 @@
       border: 0;
       font: inherit;
       cursor: pointer;
+    }
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      padding: 0;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .6);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      transition: background .2s, color .2s;
+    }
+    :root[data-theme="dark"] .theme-toggle {
+      background: rgba(26, 35, 50, .6);
+    }
+    .theme-toggle:hover {
+      color: var(--accent);
+      background: rgba(91, 92, 226, .1);
+    }
+    .theme-toggle:active {
+      transform: scale(0.95);
     }
     .add-button {
       padding: 0 1.25rem;
@@ -180,9 +222,12 @@
 <body>
   <main class="app">
     <header class="header">
-      <p class="eyebrow">Your day, organized</p>
-      <h1>Task list</h1>
-      <p class="subtitle">Capture what matters and keep moving forward.</p>
+      <div class="header-content">
+        <p class="eyebrow">Your day, organized</p>
+        <h1>Task list</h1>
+        <p class="subtitle">Capture what matters and keep moving forward.</p>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">🌙</button>
     </header>
 
     <section class="panel" aria-labelledby="tasks-heading">
@@ -299,6 +344,42 @@
       });
 
       render();
+    })();
+
+    // Theme switcher
+    (() => {
+      const THEME_KEY = "task-list-theme";
+      const themeToggle = document.getElementById("theme-toggle");
+      const html = document.documentElement;
+
+      function initTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY);
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const theme = savedTheme || (prefersDark ? "dark" : "light");
+        setTheme(theme);
+      }
+
+      function setTheme(theme) {
+        if (theme === "dark") {
+          html.setAttribute("data-theme", "dark");
+          themeToggle.textContent = "☀️";
+          themeToggle.setAttribute("aria-label", "Toggle light mode");
+        } else {
+          html.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙";
+          themeToggle.setAttribute("aria-label", "Toggle dark mode");
+        }
+        localStorage.setItem(THEME_KEY, theme);
+      }
+
+      function toggleTheme() {
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        setTheme(newTheme);
+      }
+
+      themeToggle.addEventListener("click", toggleTheme);
+      initTheme();
     })();
   </script>
 </body>
